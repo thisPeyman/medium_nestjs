@@ -1,14 +1,19 @@
-import { DataSourceOptions } from 'typeorm';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-const config: DataSourceOptions = {
+export const config: TypeOrmModuleOptions = {
   type: 'postgres',
   host: 'localhost',
   port: 5432,
   username: 'mediumclone',
   password: '123',
   database: 'mediumclone',
-  entities: [__dirname + '/**/*.entity{.ts,.js}'],
-  synchronize: true,
+  entities: ['dist/**/*.entity.js'],
+  synchronize: false,
+  migrations: ['dist/migrations/*.js'],
 };
 
-export default config;
+const dataSource = new DataSource(config as DataSourceOptions);
+
+export default dataSource;
