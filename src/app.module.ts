@@ -6,7 +6,7 @@ import { TagModule } from './tag/tag.module';
 import orgconfig from './orm-config';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(orgconfig)],
+  imports: [TypeOrmModule.forRoot(orgconfig), TagModule],
   controllers: [AppController],
   providers: [AppService],
 })
