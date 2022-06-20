@@ -15,19 +15,8 @@ export class UserService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<any> {
-    const userByEmail = await this.userRepository.findOneBy({
-      email: createUserDto.email,
-    });
-    const userByUsername = await this.userRepository.findOneBy({
-      username: createUserDto.username,
-    });
-
-    if (userByEmail || userByUsername) {
-      throw new HttpException(
-        'Email or Username are taken',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
-    }
+    const exception = await this.checkUserCredentials(createUserDto);
+    if (exception) throw exception;
     const newUser = new UserEntity();
     Object.assign(newUser, createUserDto);
 
@@ -48,5 +37,23 @@ export class UserService {
         token: this.generateJwt(user),
       },
     };
+  }
+
+  private async checkUserCredentials(
+    createUserDto: CreateUserDto,
+  ): Promise<HttpException | null> {
+    const userByEmail = await this.userRepository.findOneBy({
+      email: createUserDto.email,
+    });
+    const userByUsername = await this.userRepository.findOneBy({
+      username: createUserDto.username,
+    });
+
+    if (userByEmail || userByUsername) {
+      return new HttpException(
+        'Email or Username are taken',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
   }
 }
