@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Response } from 'express';
 import { verify } from 'jsonwebtoken';
 import { JWT_SECRET } from 'src/config';
