@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -41,5 +42,11 @@ export class ArticleController {
     const article = await this.articleService.findBySlug(slug);
 
     return this.articleService.buildArticleResponse(article);
+  }
+
+  @Delete(':slug')
+  @UseGuards(AuthGuard)
+  async deleteArticle(@User('id') id: number, @Param('slug') slug: string) {
+    return this.articleService.deleteArticle(slug, id);
   }
 }
