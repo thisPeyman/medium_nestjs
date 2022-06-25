@@ -6,13 +6,53 @@ import { DeleteResult, Repository } from 'typeorm';
 import { ArticleEntity } from './article.entity';
 import { CreateArtileDto } from './dto/create-article.dto';
 import { ArticleResponseInterface } from './types/article-response.interface';
+import { ArticlesResponseInterface } from './types/articles-response.interface';
 
 @Injectable()
 export class ArticleService {
   constructor(
     @InjectRepository(ArticleEntity)
     private readonly articleRepository: Repository<ArticleEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
+
+  async findAll(
+    currentUserId: number,
+    query: any,
+  ): Promise<ArticlesResponseInterface> {
+    const articlesQuery = this.articleRepository
+      .createQueryBuilder('articles')
+      .leftJoinAndSelect('articles.author', 'author');
+
+    if (query.tag) {
+      articlesQuery.andWhere('articles.tagList LIKE :tag', {
+        tag: `%${query.tag}`,
+      });
+    }
+
+    if (query.author) {
+      const author = await this.userRepository.findOneBy({
+        username: query.author,
+      });
+      articlesQuery.andWhere('articles.authorId = :id', { id: author.id });
+    }
+
+    articlesQuery.orderBy('articles.createdAt', 'DESC');
+
+    const articlesCount = await articlesQuery.getCount();
+
+    if (query.limit) {
+      articlesQuery.limit(query.limit);
+    }
+
+    if (query.offset) {
+      articlesQuery.offset(query.offset);
+    }
+
+    const articles = await articlesQuery.getMany();
+    return { articles, articlesCount };
+  }
 
   async createArticle(
     currentUser: UserEntity,
